@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>xpArchive | Forum</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="/xpArchive/main-page/navbar/navbar.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <div id="navbar-container"></div>
+
+<!-- Forum Titles and Topics -->
+<main class="forum-main">
+  <section class="forum-header">
+    <h1>Forum Topics</h1>
+    <div class="search-box">
+      <input type="text" placeholder="Search...">
+      <button type="submit">Search</button>
+    </div>
+    <button class="create-post-btn">Create a New Topic</button>
+  </section>
+
+  <section class="forum-topics">
+    <div class="topic">
+      <h2>Game Discussions</h2>
+      <p>Discussions about the latest games!</p>
+      <button class="view-topic-btn">View Topic</button>
+    </div>
+    <div class="topic">
+      <h2>Books and Stories</h2>
+      <p>Share your thoughts on the books you've read.</p>
+      <button class="view-topic-btn">View Topic</button>
+    </div>
+    <div class="topic">
+      <h2>Series and Movies</h2>
+      <p>Talk about your favorite series and movies.</p>
+      <button class="view-topic-btn">View Topic</button>
+    </div>
+  </section>
+</main>
+<script src="/xpArchive/main-page/navbar/navbar.js"></script>
+<script>
+  function openModal(target) {
+    if (target === "signup") {
+        window.location.href = "/xpArchive/main-page/login-sign-up/create-acc.html";
+    } else if (target === "login") {
+        window.location.href = "/xpArchive/main-page/login-sign-up/login.html";
+    }
+}
+</script>
+</body>
+</html>

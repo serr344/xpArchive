@@ -1,0 +1,138 @@
+/* General Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f2f5;
+}
+
+/* Navbar */
+.navbar {
+  background-color: #333;
+  color: white;
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar .logo {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-links a {
+  color: white;
+  font-size: 16px;
+  text-decoration: none;
+}
+
+.nav-links a:hover {
+  text-decoration: underline;
+}
+
+/* Community Dropdown */
+.community-dropdown {
+  position: relative;
+}
+
+.community-dropdown .dropdown-content {
+  display: none;
+  position: absolute;
+  padding-top: 20px;
+  top: 100%;
+  left: 0;
+  background-color: #333;
+  width: 200px;
+  border-radius: 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.community-dropdown:hover .dropdown-content {
+  display: block;
+}
+
+/* COMMUNITY */
+/* Dropdown Items */
+.dropdown-content a {
+  color: white;
+  padding: 10px 15px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-content a:hover {
+  background-color: #4CAF50;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Specific Dropdown Styles */
+.games-dropdown, .books-dropdown, .movies-dropdown, .series-dropdown {
+  position: relative;
+}
+
+.games-dropdown:hover .games-dropdown-content,
+.books-dropdown:hover .books-dropdown-content,
+.movies-dropdown:hover .movies-dropdown-content,
+.series-dropdown:hover .series-dropdown-content {
+  display: block;
+}
+
+.games-dropdown .games-dropdown-content,
+.books-dropdown .books-dropdown-content,
+.movies-dropdown .movies-dropdown-content,
+.series-dropdown .series-dropdown-content {
+  display: none;
+  position: absolute;
+  top: 0;
+  background-color: #333;
+  width: 200px;
+  border-radius: 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.games-dropdown:hover .games-dropdown-content {
+  right: 100%;
+}
+
+.books-dropdown:hover .books-dropdown-content {
+  right: 100%;
+}
+
+.movies-dropdown:hover .movies-dropdown-content {
+  right: 100%;
+}
+
+.series-dropdown:hover .series-dropdown-content {
+  right: 100%;
+}
+
+/* Dropdown Links Styling */
+.games-dropdown-content a,
+.books-dropdown-content a,
+.movies-dropdown-content a,
+.series-dropdown-content a {
+  color: white;
+  padding: 10px 15px;
+  text-decoration: none;
+  display: block;
+}
+
+.games-dropdown-content a:hover,
+.books-dropdown-content a:hover,
+.movies-dropdown-content a:hover,
+.series-dropdown-content a:hover {
+  background-color: #4CAF50;
+  text-decoration: underline;
+  cursor: pointer;
+}
