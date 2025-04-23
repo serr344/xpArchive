@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>xpArchive | Forum</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Dropdown için ek stil */
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background-color: #333;
+      min-width: 160px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      z-index: 10;
+    }
+
+    .dropdown-content a {
+      display: block;
+      padding: 0.5rem 1rem;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #444;
+    }
+
+    .community-dropdown {
+      position: relative;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+    }
+
+    .nav-links a {
+      margin: 0 1rem;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .navbar {
+      background-color: #1e1e1e;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #fff;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ✅ NAVBAR -->
+<div id="navbar-container"></div>
+
+<!-- ✅ FORUM MAIN CONTENT -->
+<main class="forum-main">
+  <section class="forum-header">
+    <h1>Forum Topics</h1>
+    <div class="search-box">
+      <input type="text" placeholder="Search...">
+      <button type="submit">Search</button>
+    </div>
+    <button class="create-post-btn">Create a New Topic</button>
+  </section>
+
+  <section class="forum-topics">
+    <div class="topic">
+      <h2>Game Discussions</h2>
+      <p>Discussions about the latest games!</p>
+      <button class="view-topic-btn">View Topic</button>
+    </div>
+    <div class="topic">
+      <h2>Books and Stories</h2>
+      <p>Share your thoughts on the books you've read.</p>
+      <button class="view-topic-btn">View Topic</button>
+    </div>
+    <div class="topic">
+      <h2>Series and Movies</h2>
+      <p>Talk about your favorite series and movies.</p>
+      <button class="view-topic-btn">View Topic</button>
+    </div>
+  </section>
+</main>
+
+<!-- ✅ NAVBAR FETCH + GİRİŞ KONTROL + DROPDOWN + LOGOUT -->
+<script>
+  fetch('/xpArchive-master/navbar/navbar.html')
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById('navbar-container').innerHTML = html;
+
+      const signupLink = document.getElementById("signup-link");
+      const loginLink = document.getElementById("login-link");
+      const logoutLink = document.getElementById("logout-link");
+      const toggle = document.getElementById("community-toggle");
+      const menu = document.getElementById("community-menu");
+
+      // Dropdown
+      toggle?.addEventListener("click", (e) => {
+        e.preventDefault();
+        menu.style.display = menu.style.display === "block" ? "none" : "block";
+      });
+
+      document.addEventListener("click", (e) => {
+        if (!toggle.contains(e.target) && !menu.contains(e.target)) {
+          menu.style.display = "none";
+        }
+      });
+
+      // Giriş kontrolü
+      try {
+        const user = JSON.parse(localStorage.getItem("xpUser"));
+        if (user && typeof user === "object") {
+          signupLink.style.display = "none";
+          loginLink.style.display = "none";
+          logoutLink.style.display = "inline";
+        } else {
+          signupLink.style.display = "inline";
+          loginLink.style.display = "inline";
+          logoutLink.style.display = "none";
+        }
+
+        logoutLink.addEventListener("click", (e) => {
+          e.preventDefault();
+          localStorage.removeItem("xpUser");
+          window.location.reload();
+        });
+
+      } catch (err) {
+        console.error("xpUser kontrolü hatası:", err);
+      }
+    });
+</script>
+
+</body>
+</html>

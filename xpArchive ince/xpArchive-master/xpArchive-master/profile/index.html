@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>xpArchive | Profile</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      margin: 0;
+    }
+    .profile-main {
+      padding: 30px;
+      max-width: 1000px;
+      margin: 40px auto;
+      background-color: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .profile-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 30px;
+    }
+    .profile-pic {
+      position: relative;
+      cursor: pointer;
+    }
+    .profile-pic img {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 30px;
+    }
+    .profile-info {
+      flex: 1;
+    }
+    .profile-info h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+    .edit-profile-btn {
+      background-color: #4CAF50;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      float: right;
+    }
+    .edit-profile-btn:hover {
+      background-color: #45a049;
+    }
+    .interest-boxes {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .interest-box {
+      background-color: #fafafa;
+      padding: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      border-radius: 6px;
+      text-align: center;
+    }
+    .interest-box.plus {
+      background-color: #d0ffd0;
+      font-weight: bold;
+      color: #4CAF50;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    .favorites-switcher {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+    .fav-tab {
+      background: #f0f0f0;
+      padding: 12px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+    .fav-tab:hover {
+      background: #4CAF50;
+      color: white;
+    }
+    .favorites-panel {
+      padding: 20px;
+      border-top: 2px solid #ccc;
+    }
+    .edit-form {
+      display: none;
+      padding: 20px;
+      background: #f9f9f9;
+      margin-top: 20px;
+      border: 2px solid #4CAF50;
+      border-radius: 8px;
+    }
+    .edit-form label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    .edit-form input, .edit-form textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .edit-form-buttons {
+      margin-top: 15px;
+      display: flex;
+      gap: 10px;
+    }
+    .save-btn, .cancel-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .save-btn {
+      background-color: #4CAF50;
+      color: white;
+    }
+    .cancel-btn {
+      background-color: #ccc;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ✅ Navbar -->
+<div id="navbar-container"></div>
+
+<!-- ▶️ Profil İçeriği -->
+<div class="profile-main">
+  <section class="profile-header">
+    <div class="profile-pic" onclick="document.getElementById('upload-photo').click()">
+      <img id="profile-img" src="pp.png" alt="Profile Picture">
+      <input type="file" id="upload-photo" accept="image/*" style="display: none;" />
+    </div>
+    <div class="profile-info">
+      <button class="edit-profile-btn">Edit Profile</button>
+      <h1 id="profile-name">Username</h1>
+      <p><strong>Full Name:</strong> <span id="full-name"></span></p>
+      <p><strong>Birth Year:</strong> <span id="birth-year"></span></p>
+      <p><strong>Membership Date:</strong> <span id="member-date"></span></p>
+      <p><strong>General Interests:</strong> <span id="interests"></span></p>
+
+      <section class="edit-form" id="edit-form">
+        <label for="edit-fullname">Full Name</label>
+        <input type="text" id="edit-fullname">
+        <label for="edit-birthyear">Birth Year</label>
+        <input type="text" id="edit-birthyear">
+        <label for="edit-interests">Interests (comma separated)</label>
+        <textarea id="edit-interests" rows="2"></textarea>
+        <div class="edit-form-buttons">
+          <button class="save-btn" id="save-btn">Save</button>
+          <button class="cancel-btn" id="cancel-btn">Cancel</button>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <section class="favorites-switcher">
+    <div class="fav-tab" data-type="games">🎮 Games</div>
+    <div class="fav-tab" data-type="books">📚 Books</div>
+    <div class="fav-tab" data-type="movies">🎬 Movies</div>
+    <div class="fav-tab" data-type="series">📺 Series</div>
+  </section>
+
+  <section class="favorites-panel" id="favorites-panel">
+    <p>Choose a category above to view your favorites.</p>
+  </section>
+</div>
+
+<script>
+  // Navbar
+  fetch('/xpArchive-master/navbar/navbar.html')
+    .then(res => res.text())
+    .then(data => document.getElementById('navbar-container').innerHTML = data);
+
+  // Kullanıcı bilgisi
+  const userData = JSON.parse(localStorage.getItem("xpUser"));
+  const username = userData?.username || "guest";
+
+  document.getElementById("profile-name").textContent = username;
+  document.getElementById("full-name").textContent = userData.fullname;
+  document.getElementById("birth-year").textContent = userData.birthyear;
+  document.getElementById("member-date").textContent = userData.memberSince;
+  document.getElementById("interests").textContent = userData.interests.join(", ");
+
+  // Profil resmi yükle
+  const savedPhoto = localStorage.getItem(`profilePhoto_${username}`);
+  if (savedPhoto) {
+    document.getElementById("profile-img").src = savedPhoto;
+  }
+
+  // Profil resmi güncelle
+  document.getElementById("upload-photo").addEventListener("change", function () {
+    const file = this.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const base64Image = e.target.result;
+        localStorage.setItem(`profilePhoto_${username}`, base64Image);
+        document.getElementById("profile-img").src = base64Image;
+        alert("Profil fotoğrafı başarıyla güncellendi!");
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Profil düzenle
+  document.querySelector(".edit-profile-btn").addEventListener("click", () => {
+    document.getElementById("edit-fullname").value = userData.fullname;
+    document.getElementById("edit-birthyear").value = userData.birthyear;
+    document.getElementById("edit-interests").value = userData.interests.join(", ");
+    document.getElementById("edit-form").style.display = "block";
+  });
+
+  document.getElementById("cancel-btn").addEventListener("click", () => {
+    document.getElementById("edit-form").style.display = "none";
+  });
+
+  document.getElementById("save-btn").addEventListener("click", () => {
+    userData.fullname = document.getElementById("edit-fullname").value;
+    userData.birthyear = document.getElementById("edit-birthyear").value;
+    userData.interests = document.getElementById("edit-interests").value.split(",").map(i => i.trim());
+    localStorage.setItem("xpUser", JSON.stringify(userData));
+    location.reload();
+  });
+
+  // Favoriler
+  const categoryRoutes = {
+    games: '/xpArchive-master/games/games.html',
+    books: '#',
+    movies: '#',
+    series: '#'
+  };
+
+  document.querySelectorAll(".fav-tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      const type = tab.dataset.type;
+      const favorites = JSON.parse(localStorage.getItem(`favorite_${type}_${username}`)) || [];
+
+      const panel = document.getElementById("favorites-panel");
+      panel.innerHTML = `
+        <h2>Your Favorite ${type.charAt(0).toUpperCase() + type.slice(1)}</h2>
+        <div class="interest-boxes">
+          <div class="interest-box plus" onclick="window.location.href='${categoryRoutes[type]}'">+</div>
+          ${favorites.map(item => `
+            <div class="interest-box">
+              <img src="${item.image}" alt="${item.name}" style="width: 100%; height: 100px; object-fit: cover; border-radius: 6px;">
+              <div style="margin-top: 5px; font-size: 14px;">${item.name}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    });
+  });
+</script>
+</body>
+</html>

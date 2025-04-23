@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>xpArchive | Navbar</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    .navbar {
+      background-color: #1e1e1e;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #fff;
+      z-index: 1000;
+    }
+
+    .logo {
+      font-size: 1.6rem;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+    }
+
+    .nav-links a {
+      margin-left: 1.2rem;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      position: relative;
+    }
+
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+
+    .community-dropdown {
+      position: relative;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background-color: #333;
+      min-width: 160px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .dropdown-content a {
+      display: block;
+      padding: 0.6rem 1rem;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #444;
+    }
+
+    .community-dropdown.active .dropdown-content {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ✅ Navbar -->
+  <header class="navbar">
+    <div class="logo">xpArchive</div>
+    <nav class="nav-links">
+      <a href="/xpArchive-master/index.html">Main Page</a>
+      <a href="/xpArchive-master/profile/index.html">Profile</a>
+
+      <div class="community-dropdown">
+        <a href="#" id="community-toggle">Community ▼</a>
+        <div class="dropdown-content" id="community-menu">
+          <a href="#">Books</a>
+          <a href="/xpArchive-master/games/games.html">Games</a>
+          <a href="#">Movies</a>
+          <a href="#">Series</a>
+        </div>
+      </div>
+
+      <a href="/xpArchive-master/login-sign-up/create-acc.html" id="signup-link">Sign up</a>
+      <a href="/xpArchive-master/login-sign-up/login.html" id="login-link">Login</a>
+      <a href="#" id="logout-link" style="display: none;">Logout</a>
+    </nav>
+  </header>
+
+  <!-- ✅ JS -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const user = JSON.parse(localStorage.getItem("xpUser"));
+      const signupLink = document.getElementById("signup-link");
+      const loginLink = document.getElementById("login-link");
+      const logoutLink = document.getElementById("logout-link");
+      const toggle = document.getElementById("community-toggle");
+      const dropdown = document.querySelector(".community-dropdown");
+
+      // Giriş kontrolü
+      if (user && typeof user === "object") {
+        signupLink.style.display = "none";
+        loginLink.style.display = "none";
+        logoutLink.style.display = "inline";
+      } else {
+        signupLink.style.display = "inline";
+        loginLink.style.display = "inline";
+        logoutLink.style.display = "none";
+      }
+
+      // Logout işlemi
+      logoutLink?.addEventListener("click", (e) => {
+        e.preventDefault();
+        localStorage.removeItem("xpUser");
+        window.location.reload();
+      });
+
+      // Dropdown toggle
+      toggle?.addEventListener("click", (e) => {
+        e.preventDefault();
+        dropdown.classList.toggle("active");
+      });
+
+      // Dropdown dışı tıklamalarda menüyü kapat
+      document.addEventListener("click", (e) => {
+        if (!dropdown.contains(e.target)) {
+          dropdown.classList.remove("active");
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>

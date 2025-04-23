@@ -1,0 +1,117 @@
+/* GENEL SIFIRLAMA */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* GÖVDE STİLİ */
+body {
+    background-color: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* FORM STİLİ */
+#register-form {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    width: 360px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+/* BAŞLIK */
+#register-form h3 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* ETİKET VE GİRİŞ ALANLARI */
+#register-form label {
+    display: block;
+    text-align: left;
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+#register-form input[type="text"],
+#register-form input[type="number"],
+#register-form input[type="email"],
+#register-form input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    margin-bottom: 15px;
+    outline: none;
+    background-color: #fff;
+    color: #333;
+}
+
+/* CHECKBOX GRUBU */
+fieldset {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+legend {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+fieldset label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: normal;
+    font-size: 14px;
+    color: #333;
+}
+
+/* BUTON */
+#register-form button {
+    width: 100%;
+    padding: 12px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+    transition: background-color 0.2s ease;
+}
+
+#register-form button:hover {
+    background-color: #45a049;
+}
+
+/* ALT KISIM */
+.form {
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+.form a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.form a:hover {
+    text-decoration: underline;
+}

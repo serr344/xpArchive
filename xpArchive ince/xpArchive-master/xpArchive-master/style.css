@@ -1,0 +1,112 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f2f5;
+  }
+  
+  /* Dropdown */
+  .community-dropdown {
+    position: relative;
+  }
+  
+  .community-dropdown .dropdown-content {
+    display: none;
+    position: absolute;
+    padding-top: 20px;
+    top: 100%;
+    left: 0;
+    background-color: #333;
+    width: 200px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .community-dropdown:hover .dropdown-content {
+    display: block;
+  }
+  
+  .dropdown-content a {
+    color: white;
+    padding: 10px 15px;
+    text-decoration: none;
+    display: block;
+  }
+  
+  .dropdown-content a:hover {
+    background-color: #4CAF50;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  
+  /* Forum */
+  .forum-main {
+    padding: 30px;
+  }
+  
+  .forum-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+  
+  .forum-header h1 {
+    font-size: 32px;
+  }
+  
+  .create-post-btn, .search-box button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .create-post-btn:hover, .search-box button:hover {
+    background-color: #45a049;
+  }
+  
+  .search-box {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .search-box input {
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    width: 950px;
+  }
+  
+  .forum-topics .topic {
+    background-color: white;
+    padding: 20px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .forum-topics .topic h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  
+  .view-topic-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .view-topic-btn:hover {
+    background-color: #45a049;
+  }
+  
