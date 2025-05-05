@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Book Detail</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="book-detail.css" />
+</head>
+<body>
+
+<div id="navbar-container"></div>
+
+<div class="detail-container" id="book-detail">Loading...</div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const key = params.get("key"); // örn: /works/OL123456W
+
+  async function fetchBookDetail() {
+    const detailContainer = document.getElementById("book-detail");
+
+    try {
+      const res = await fetch(`https://openlibrary.org${key}.json`);
+      const book = await res.json();
+
+      const coverUrl = book.covers
+        ? `https://covers.openlibrary.org/b/id/${book.covers[0]}-L.jpg`
+        : 'https://via.placeholder.com/300x450?text=No+Cover';
+
+      const title = book.title || "No title";
+      const descriptionText = typeof book.description === "string"
+        ? book.description
+        : book.description?.value || "No description available.";
+
+      const shortDescription = descriptionText.length > 750
+        ? descriptionText.slice(0, 750) + "..."
+        : descriptionText;
+
+      const publishDate = book.first_publish_date || "N/A";
+      const subjects = book.subjects?.slice(0, 5).join(', ') || "N/A";
+
+      detailContainer.innerHTML = `
+        <div class="detail-content">
+          <img src="${coverUrl}" alt="${title}" />
+          <div class="info">
+            <h1>${title}</h1>
+            <p><strong>First Published:</strong> ${publishDate}</p>
+            <p><strong>Subjects:</strong> ${subjects}</p>
+            <p>
+              <strong>Description:</strong>
+              <span id="desc-short">${shortDescription}</span>
+              ${descriptionText.length > 300 ? `
+                <span id="desc-full" style="display: none;">${descriptionText}</span>
+                <button id="toggle-desc" style="border: none; background: none; color: #007BFF; cursor: pointer;">Show more</button>
+              ` : ''}
+            </p>
+          </div>
+        </div>
+      `;
+
+      if (descriptionText.length > 750) {
+        const toggleBtn = document.getElementById('toggle-desc');
+        const shortDesc = document.getElementById('desc-short');
+        const fullDesc = document.getElementById('desc-full');
+
+        toggleBtn.addEventListener('click', () => {
+          const isExpanded = fullDesc.style.display === 'inline';
+          fullDesc.style.display = isExpanded ? 'none' : 'inline';
+          shortDesc.style.display = isExpanded ? 'inline' : 'none';
+          toggleBtn.textContent = isExpanded ? 'Show more' : 'Show less';
+        });
+      }
+
+    } catch (error) {
+      detailContainer.innerHTML = `<p>Book data could not be loaded.</p>`;
+    }
+  }
+
+  fetchBookDetail();
+</script>
+
+<script src="/xpArchive-master/navbar/navbar.js"></script>
+</body>
+</html>
