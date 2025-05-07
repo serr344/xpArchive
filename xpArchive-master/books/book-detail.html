@@ -14,64 +14,44 @@
 
 <script>
   const params = new URLSearchParams(window.location.search);
-  const key = params.get("key"); // örn: /works/OL123456W
+  const bookId = params.get("id");
+  const apiKey = "AIzaSyAgGISUwqx-OGGdBMlGC3FW-Er5LQsO-Y0";
 
   async function fetchBookDetail() {
     const detailContainer = document.getElementById("book-detail");
 
+    if (!bookId) {
+      detailContainer.innerHTML = `<p>Book ID is missing.</p>`;
+      return;
+    }
+
     try {
-      const res = await fetch(`https://openlibrary.org${key}.json`);
-      const book = await res.json();
+      const res = await fetch(`https://www.googleapis.com/books/v1/volumes/${bookId}?key=${apiKey}`);
+      const data = await res.json();
+      const info = data.volumeInfo;
 
-      const coverUrl = book.covers
-        ? `https://covers.openlibrary.org/b/id/${book.covers[0]}-L.jpg`
-        : 'https://via.placeholder.com/300x450?text=No+Cover';
-
-      const title = book.title || "No title";
-      const descriptionText = typeof book.description === "string"
-        ? book.description
-        : book.description?.value || "No description available.";
-
-      const shortDescription = descriptionText.length > 750
-        ? descriptionText.slice(0, 750) + "..."
-        : descriptionText;
-
-      const publishDate = book.first_publish_date || "N/A";
-      const subjects = book.subjects?.slice(0, 5).join(', ') || "N/A";
+      const title = info.title || "No title";
+      const description = info.description || "No description available.";
+      const authors = info.authors?.join(", ") || "Unknown";
+      const publishedDate = info.publishedDate || "N/A";
+      const categories = info.categories?.join(", ") || "N/A";
+      const thumbnail = info.imageLinks?.thumbnail || 'https://via.placeholder.com/300x450?text=No+Cover';
 
       detailContainer.innerHTML = `
         <div class="detail-content">
-          <img src="${coverUrl}" alt="${title}" />
+          <img src="${thumbnail}" alt="${title}" />
           <div class="info">
             <h1>${title}</h1>
-            <p><strong>First Published:</strong> ${publishDate}</p>
-            <p><strong>Subjects:</strong> ${subjects}</p>
-            <p>
-              <strong>Description:</strong>
-              <span id="desc-short">${shortDescription}</span>
-              ${descriptionText.length > 300 ? `
-                <span id="desc-full" style="display: none;">${descriptionText}</span>
-                <button id="toggle-desc" style="border: none; background: none; color: #007BFF; cursor: pointer;">Show more</button>
-              ` : ''}
-            </p>
+            <p><strong>Authors:</strong> ${authors}</p>
+            <p><strong>Published:</strong> ${publishedDate}</p>
+            <p><strong>Categories:</strong> ${categories}</p>
+            <p><strong>Description:</strong> ${description}</p>
           </div>
         </div>
       `;
 
-      if (descriptionText.length > 750) {
-        const toggleBtn = document.getElementById('toggle-desc');
-        const shortDesc = document.getElementById('desc-short');
-        const fullDesc = document.getElementById('desc-full');
-
-        toggleBtn.addEventListener('click', () => {
-          const isExpanded = fullDesc.style.display === 'inline';
-          fullDesc.style.display = isExpanded ? 'none' : 'inline';
-          shortDesc.style.display = isExpanded ? 'inline' : 'none';
-          toggleBtn.textContent = isExpanded ? 'Show more' : 'Show less';
-        });
-      }
-
     } catch (error) {
+      console.error("Error fetching book detail:", error);
       detailContainer.innerHTML = `<p>Book data could not be loaded.</p>`;
     }
   }
