@@ -1,0 +1,177 @@
+
+  
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 30px 0;
+}
+
+.pagination button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+  .pagination button:hover {
+    background-color: #45a049;
+  }
+
+  .pagination button:disabled {
+    background-color: #a5d6a7;
+    cursor: not-allowed;
+  }
+  
+  .pagination span {
+    font-size: 14px;
+  }
+  
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 10px 30px 40px;
+  }
+  
+  .game-card {
+    background-color: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .game-card:hover {
+    transform: scale(1.03);
+  }
+  .game-card img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+  }
+  .game-title {
+    padding: 10px;
+    font-weight: bold;
+    font-size: 14px;
+    text-align: center;
+    color: #333;
+  }
+  .card-icons {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 10px;
+  }
+  .card-icons i {
+    background-color: white;
+    padding: 6px;
+    border-radius: 50%;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  .card-icons i:hover {
+    background-color: #4CAF50;
+    color: white;
+  }
+  
+  .books-page {
+    padding: 20px;
+    max-width: 1200px;
+    margin: auto;
+  }
+  
+  .books-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  
+  .filter-bar select,
+  .filter-bar input {
+    padding: 8px 10px;
+    font-size: 14px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    width: 140px;
+  }
+  
+  .books-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
+  }
+  
+  .book-card {
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+  }
+  
+  .book-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .book-card img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  
+  .book-card h3 {
+    font-size: 16px;
+    margin-top: 10px;
+  }
+  #searchbar-container {
+    display: flex;
+    justify-content: flex-start;
+    margin: 10px 40px;
+  }
+  .search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .search-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .search-bar input {
+    padding: 8px;
+    font-size: 16px;
+    width: 50%;
+    max-width: 400px;
+  }
+  
+  .search-bar button {
+    padding: 8px 16px;
+    font-size: 16px;
+    cursor: pointer;
+  }

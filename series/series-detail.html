@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Series Detail</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="serie-detail.css" />
+</head>
+<body>
+
+<div id="navbar-container"></div>
+
+<div class="detail-container" id="series-detail">Loading...</div>
+
+<script>
+  const apiKey = 'f7f860eb9f4587839d83fd21430f4205';
+  const params = new URLSearchParams(window.location.search);
+  const seriesId = params.get("seriesId");
+  const detailDiv = document.getElementById("series-detail");
+
+  async function fetchSeriesDetail() {
+    try {
+      const res = await fetch(`https://api.themoviedb.org/3/tv/${seriesId}?api_key=${apiKey}&language=en-US`);
+      const series = await res.json();
+
+      detailDiv.innerHTML = `
+        <div class="detail-content">
+          <img src="https://image.tmdb.org/t/p/w500${series.poster_path}" alt="${series.name}" />
+          <div class="info">
+            <h1>${series.name}</h1>
+            <p><strong>First Air Date:</strong> ${series.first_air_date}</p>
+            <p><strong>Genres:</strong> ${series.genres.map(g => g.name).join(', ')}</p>
+            <p><strong>Rating:</strong> ${series.vote_average} / 10</p>
+            <p><strong>Overview:</strong> ${series.overview}</p>
+          </div>
+        </div>
+      `;
+    } catch (err) {
+      detailDiv.innerHTML = `<p>Could not load series data.</p>`;
+    }
+  }
+
+  fetchSeriesDetail();
+</script>
+
+<script src="/xpArchive-master/navbar/navbar.js"></script>
+</body>
+</html>
