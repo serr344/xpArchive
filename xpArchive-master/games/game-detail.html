@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Game Details</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="game-detail.css" />
+  <style>
+    
+  </style>
+</head>
+<body>
+  <div id="navbar-container"></div>
+
+  <div class="container">
+    <img id="game-image" class="cover" src="" alt="Game Cover" />
+    <h1 id="game-title">Loading...</h1>
+    <div class="info" id="release-date"></div>
+    <div class="info" id="genres"></div>
+    <div class="info" id="developers"></div>
+    <div class="info" id="platforms"></div>
+    <div class="description" id="description"></div>
+
+    <div class="developer-section">
+      <h2 class="developer-title">Games by the Developer</h2>
+      <div class="related-games" id="developer-games"></div>
+    </div>
+
+    <div class="related-section">
+      <h2 class="related-title">Similar Games</h2>
+      <div class="related-games" id="related-games"></div>
+    </div>
+  </div>
+
+  <script>
+    // Load navbar dynamically
+    fetch('/xpArchive-master/navbar/navbar.html')
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById('navbar-container').innerHTML = data;
+        const toggleBtn = document.getElementById('community-toggle');
+        const menu = document.getElementById('community-menu');
+        toggleBtn?.addEventListener('click', function(e) {
+          e.preventDefault();
+          menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        });
+        document.addEventListener('click', function(e) {
+          if (!toggleBtn.contains(e.target) && !menu.contains(e.target)) {
+            menu.style.display = 'none';
+          }
+        });
+      });
+
+    const params = new URLSearchParams(window.location.search);
+    const gameId = params.get("gameId") || "3498";
+    const apiKey = "6bf9db2e65b94207965bb05b2623aac1";
+    const url = `https://api.rawg.io/api/games/${gameId}?key=${apiKey}`;
+
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("game-image").src = data.background_image;
+        document.getElementById("game-title").innerText = data.name;
+        document.getElementById("release-date").innerText = `Release Date: ${data.released}`;
+        document.getElementById("genres").innerText = `Genres: ${data.genres.map(g => g.name).join(", ")}`;
+        document.getElementById("developers").innerText = `Developer: ${data.developers?.map(d => d.name).join(", ") || "Unknown"}`;
+        document.getElementById("platforms").innerText = `Platforms: ${data.platforms?.map(p => p.platform.name).join(", ") || "Unknown"}`;
+        document.getElementById("description").innerText = data.description_raw || "No description available.";
+
+        const developerSlug = data.developers?.[0]?.slug;
+        if (developerSlug) {
+          fetch(`https://api.rawg.io/api/games?key=${apiKey}&developers=${developerSlug}&page_size=5`)
+            .then(res => res.json())
+            .then(devGames => {
+              const container = document.getElementById("developer-games");
+              devGames.results.forEach(g => {
+                if (g.id !== data.id) {
+                  const div = document.createElement("div");
+                  div.className = "related-game";
+                  div.innerHTML = `
+                    <img src="${g.background_image}" alt="${g.name}" />
+                    <span>${g.name}</span>
+                  `;
+                  container.appendChild(div);
+                }
+              });
+            });
+        }
+
+        const genre = data.genres[0]?.slug;
+        if (genre) {
+          fetch(`https://api.rawg.io/api/games?key=${apiKey}&genres=${genre}&page_size=5`)
+            .then(res => res.json())
+            .then(games => {
+              const container = document.getElementById("related-games");
+              games.results.forEach(g => {
+                if (g.id !== data.id) {
+                  const div = document.createElement("div");
+                  div.className = "related-game";
+                  div.innerHTML = `
+                    <img src="${g.background_image}" alt="${g.name}" />
+                    <span>${g.name}</span>
+                  `;
+                  container.appendChild(div);
+                }
+              });
+            });
+        }
+      })
+      .catch(err => {
+        console.error("API error:", err);
+        document.getElementById("game-title").innerText = "Game not found";
+      });
+  </script>
+</body>
+</html>

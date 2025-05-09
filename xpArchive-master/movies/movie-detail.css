@@ -1,0 +1,30 @@
+.detail-container {
+    max-width: 1000px;
+    margin: 30px auto;
+    padding: 20px;
+    font-family: sans-serif;
+  }
+  
+  .detail-content {
+    display: flex;
+    gap: 30px;
+  }
+  
+  .detail-content img {
+    width: 300px;
+    border-radius: 10px;
+  }
+  
+  .info {
+    flex: 1;
+  }
+  
+  .info h1 {
+    margin-bottom: 10px;
+  }
+  
+  .info p {
+    margin-bottom: 8px;
+    line-height: 1.6;
+  }
+  
