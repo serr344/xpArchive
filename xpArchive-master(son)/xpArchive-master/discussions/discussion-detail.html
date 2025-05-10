@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discussion Detail</title>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <style>
+  
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    padding: 20px;
+  }
+
+  #discussion-title {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+
+  .comment {
+
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin: 20px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .reply {
+    margin-left: 40px;
+    background-color: #eef6ff;
+  }
+
+  .comment-author {
+    font-weight: bold;
+    margin-bottom: 3px;
+  }
+
+  .comment-timestamp {
+    font-size: 11px;
+    color: gray;
+    margin-bottom: 8px;
+  }
+
+  .comment-text {
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+
+  .reply-button {
+    font-size: 13px;
+    color: #007bff;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    margin-top: 5px;
+  }
+
+  .reply-button:hover {
+    text-decoration: underline;
+  }
+
+  textarea {
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    padding: 8px;
+    font-size: 14px;
+  }
+
+  button {
+    padding: 6px 12px;
+    background-color: #007bff;
+    border: none;
+    color: white;
+    font-size: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 5px;
+  }
+
+  button:hover {
+    background-color: #0056b3;
+  }
+</style>
+
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+</head>
+<body>
+  <div id="back-link-container" style="margin-bottom: 20px;"></div>
+
+<h1 id="discussion-title">Loading Discussion...</h1>
+
+<div id="comments"></div>
+
+<h2>Add a Comment</h2>
+<textarea id="comment-text" placeholder="Write your comment..." rows="3" style="width: 100%;"></textarea><br>
+<button onclick="addComment()">Post Comment</button>
+
+<script>
+// Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyAS06nY6907ZKrP3ZQ5bG1GEGJ6IOe-i84",
+  authDomain: "xparchive-c0cba.firebaseapp.com",
+  projectId: "xparchive-c0cba",
+  storageBucket: "xparchive-c0cba.firebasestorage.app",
+  messagingSenderId: "160205927114",
+  appId: "1:160205927114:web:fc7956bf6814480f953a33"
+};
+
+firebase.initializeApp(firebaseConfig);
+const firestore = firebase.firestore();
+
+// Get discussionId from URL
+const urlParams = new URLSearchParams(window.location.search);
+const discussionId = urlParams.get("discussionId");
+
+// 🚨 Check if discussionId is valid
+if (!discussionId) {
+  alert("Invalid discussion. Please go back and select a discussion first.");
+  throw new Error("No discussion ID found.");
+}
+
+// Load discussion title
+firestore.collection("discussions").doc(discussionId).get().then(doc => {
+  if (doc.exists) {
+    const data = doc.data();
+
+    // ✅ Set discussion title
+    document.getElementById("discussion-title").innerText = data.title;
+
+    // ✅ Show dynamic category tag
+    const categoryTag = document.createElement("div");
+    categoryTag.innerText = `Category: ${data.category}`;
+    categoryTag.style.fontSize = "14px";
+    categoryTag.style.color = "#555";
+    categoryTag.style.marginBottom = "20px";
+    document.getElementById("discussion-title").after(categoryTag);
+
+    // ✅ Add "Back to Discussions" link
+    const backLink = document.createElement("a");
+backLink.href = `discussions.html?category=${data.category}`;
+backLink.innerHTML = `<i class="fa-solid fa-circle-left" style="margin-right: 6px;"></i> Back to Discussions`;
+backLink.style.display = "inline-block";
+backLink.style.padding = "8px 14px";
+backLink.style.backgroundColor = "#f0f0f0";
+backLink.style.color = "#333";
+backLink.style.textDecoration = "none";
+backLink.style.border = "1px solid #ccc";
+backLink.style.borderRadius = "6px";
+backLink.style.fontSize = "14px";
+backLink.style.fontWeight = "bold";
+backLink.style.transition = "all 0.2s";
+backLink.onmouseover = () => {
+  backLink.style.backgroundColor = "#e0e0e0";
+};
+backLink.onmouseout = () => {
+  backLink.style.backgroundColor = "#f0f0f0";
+};
+
+document.getElementById("back-link-container").appendChild(backLink);
+
+  }
+});
+
+
+// Load comments
+function loadComments() {
+  firestore.collection("discussions").doc(discussionId).collection("comments")
+    .orderBy("timestamp")
+    .onSnapshot(snapshot => {
+      const comments = [];
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        comments.push({...data, id: doc.id});
+      });
+      renderComments(comments);
+    });
+}
+
+function renderComments(comments, parentId = null, container = document.getElementById("comments")) {
+  if (parentId == null) container.innerHTML = "";
+
+  comments.filter(c => c.parentId === parentId).forEach(comment => {
+    const div = document.createElement("div");
+    div.className = "comment";
+    if (parentId) div.classList.add("reply");
+
+    div.innerHTML = `
+      <div class="comment-author">${comment.user}</div>
+      <div class="comment-text">${comment.text}</div>
+      <div class="reply-button" onclick="replyTo('${comment.id}')">Reply</div>
+      <div id="replies-${comment.id}"></div>
+    `;
+
+    container.appendChild(div);
+
+    const replyContainer = div.querySelector(`#replies-${comment.id}`);
+    renderComments(comments, comment.id, replyContainer);
+  });
+}
+
+function addComment(parentId = null) {
+  const text = document.getElementById("comment-text").value;
+  console.log("TRYING TO ADD COMMENT:", text, "To:", parentId);
+
+  if (!text) return alert("Please write something.");
+
+  const user = JSON.parse(localStorage.getItem("xpUser"))?.username || "guest";
+
+  firebase.firestore().collection("discussions").doc(discussionId).collection("comments").add({
+    text,
+    user,
+    parentId,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(() => {
+    console.log("COMMENT ADDED!");
+    document.getElementById("comment-text").value = "";
+  }).catch(err => {
+    console.error("ERROR ADDING COMMENT:", err);
+  });
+}
+
+
+function replyTo(commentId) {
+  const replyBoxId = `reply-box-${commentId}`;
+  let existingBox = document.getElementById(replyBoxId);
+
+  if (existingBox) {
+    existingBox.remove(); // toggle off if already open
+    return;
+  }
+
+  // Create reply input box
+  const inputBox = document.createElement("div");
+  inputBox.id = replyBoxId;
+  inputBox.innerHTML = `
+    <textarea placeholder="Write your reply..." rows="2" style="width: 100%; margin-top: 5px;" id="reply-input-${commentId}"></textarea>
+    <button style="margin-top: 5px;" onclick="postReply('${commentId}')">Post Reply</button>
+  `;
+
+  const parent = document.querySelector(`#replies-${commentId}`);
+  parent.appendChild(inputBox);
+}
+function postReply(parentId) {
+  const input = document.getElementById(`reply-input-${parentId}`);
+  const text = input.value.trim();
+  if (!text) return alert("Reply cannot be empty.");
+
+  const user = JSON.parse(localStorage.getItem("xpUser"))?.username || "guest";
+
+  firestore.collection("discussions").doc(discussionId).collection("comments").add({
+    text,
+    user,
+    parentId,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(() => {
+    input.value = "";
+    document.getElementById(`reply-box-${parentId}`).remove(); // close input after submit
+  });
+}
+
+
+loadComments();
+</script>
+
+</body>
+</html>

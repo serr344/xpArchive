@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>xpArchive | Profile</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="profile.css">
+</head>
+<body>
+
+<!-- ✅ Navbar -->
+<div id="navbar-container"></div>
+
+<!-- ▶️ Profil İçeriği -->
+<div class="profile-main">
+  <section class="profile-header">
+    <div class="profile-pic" onclick="document.getElementById('upload-photo').click()">
+      <img id="profile-img" src="pp.png" alt="Profile Picture">
+      <input type="file" id="upload-photo" accept="image/*" style="display: none;" />
+    </div>
+    <div class="profile-info">
+      <button class="edit-profile-btn">Edit Profile</button>
+      <h1 id="profile-name">Username</h1>
+      <p><strong>Full Name:</strong> <span id="full-name"></span></p>
+      <p><strong>Birth Year:</strong> <span id="birth-year"></span></p>
+      <p><strong>Membership Date:</strong> <span id="member-date"></span></p>
+      <p><strong>General Interests:</strong> <span id="interests"></span></p>
+
+      <section class="edit-form" id="edit-form">
+        <label for="edit-fullname">Full Name</label>
+        <input type="text" id="edit-fullname">
+        <label for="edit-birthyear">Birth Year</label>
+        <input type="text" id="edit-birthyear">
+        <label for="edit-interests">Interests (comma separated)</label>
+        <textarea id="edit-interests" rows="2"></textarea>
+        <div class="edit-form-buttons">
+          <button class="save-btn" id="save-btn">Save</button>
+          <button class="cancel-btn" id="cancel-btn">Cancel</button>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <section class="favorites-switcher">
+    <div class="fav-tab" data-type="games">🎮 Games</div>
+    <div class="fav-tab" data-type="books">📚 Books</div>
+    <div class="fav-tab" data-type="movies">🎬 Movies</div>
+    <div class="fav-tab" data-type="series">📺 Series</div>
+  </section>
+
+  <section class="favorites-panel" id="favorites-panel">
+    <p>Choose a category above to view your favorites.</p>
+  </section>
+</div>
+
+<script>
+  // Navbar
+  fetch('/xpArchive-master/navbar/navbar.html')
+    .then(res => res.text())
+    .then(data => document.getElementById('navbar-container').innerHTML = data);
+
+  // Kullanıcı bilgisi
+  const userData = JSON.parse(localStorage.getItem("xpUser"));
+  const username = userData?.username || "guest";
+
+  if (!userData) {
+    window.location.href = '/xpArchive-master/login-sign-up/login.html';
+  } else {
+    document.getElementById("profile-name").textContent = username;
+    document.getElementById("full-name").textContent = userData.fullname;
+    document.getElementById("birth-year").textContent = userData.birthyear;
+    document.getElementById("member-date").textContent = userData.memberSince;
+    document.getElementById("interests").textContent = userData.interests.join(", ");
+  }
+
+  // Profil resmi yükle
+  const savedPhoto = localStorage.getItem(`profilePhoto_${username}`);
+  if (savedPhoto) {
+    document.getElementById("profile-img").src = savedPhoto;
+  }
+
+  // Profil resmi güncelle
+  document.getElementById("upload-photo").addEventListener("change", function () {
+    const file = this.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const base64Image = e.target.result;
+        localStorage.setItem(`profilePhoto_${username}`, base64Image);
+        document.getElementById("profile-img").src = base64Image;
+        alert("Profil fotoğrafı başarıyla güncellendi!");
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Profil düzenle
+  document.querySelector(".edit-profile-btn").addEventListener("click", () => {
+    document.getElementById("edit-fullname").value = userData.fullname;
+    document.getElementById("edit-birthyear").value = userData.birthyear;
+    document.getElementById("edit-interests").value = userData.interests.join(", ");
+    document.getElementById("edit-form").style.display = "block";
+  });
+
+  document.getElementById("cancel-btn").addEventListener("click", () => {
+    document.getElementById("edit-form").style.display = "none";
+  });
+
+  document.getElementById("save-btn").addEventListener("click", () => {
+    userData.fullname = document.getElementById("edit-fullname").value;
+    userData.birthyear = document.getElementById("edit-birthyear").value;
+    userData.interests = document.getElementById("edit-interests").value.split(",").map(i => i.trim());
+    localStorage.setItem("xpUser", JSON.stringify(userData));
+    location.reload();
+  });
+
+  const categoryRoutes = {
+  games: '../games/games.html',
+  books: '../books/books.html',  // Listeleme sayfası
+  movies: '../movies/movies.html',
+  series: '../series/series.html'
+};
+
+
+  document.querySelectorAll(".fav-tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      const type = tab.dataset.type;
+      const favorites = JSON.parse(localStorage.getItem(`favorite_${type}_${username}`)) || [];
+
+      const panel = document.getElementById("favorites-panel");
+      panel.innerHTML = `
+        <h2>Your Favorite ${type.charAt(0).toUpperCase() + type.slice(1)}</h2>
+        <div class="interest-boxes">
+          <div class="interest-box plus" onclick="window.location.href='${categoryRoutes[type]}'">+</div>
+          ${favorites.map(item => {
+            const name = item.name || item.title || "Untitled";
+            const image = item.image || item.cover || "https://via.placeholder.com/300x450?text=No+Image";
+            const detailUrl = categoryRoutes[type].replace( `${type}-detail`, type,);  // Güncellenmiş URL dönüşümü
+            return `
+              <div class="interest-box" style="position: relative;">
+                <img src="${image}" alt="${name}" style="width: 100%; height: 100px; object-fit: cover; border-radius: 6px;" onclick="window.location.href='${detailUrl}?id=${item.id}'">
+                <div style="margin-top: 5px; font-size: 14px;">${name}</div>
+                <div class="card-icons">
+                  <i class="fa-solid fa-heart" title="Remove from Favorites" onclick='toggleFavorite(event, ${JSON.stringify({ ...item, type })})' style="color: red;"></i>
+                  <i class="fa-solid fa-pen-to-square" title="Write Discussion" onclick="startDiscussion(event)"></i>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    });
+  });
+
+  // Favori ekle / çıkar
+  function toggleFavorite(event, item) {
+    event.stopPropagation();
+    let favorites = JSON.parse(localStorage.getItem(`favorite_${item.type}_${username}`)) || [];
+    const heart = event.target;
+
+    const exists = favorites.some(f => f.id === item.id);
+    if (exists) {
+      favorites = favorites.filter(f => f.id !== item.id);
+      heart.classList.remove('fa-solid');
+      heart.classList.add('fa-regular');
+      heart.style.color = '';
+    } else {
+      favorites.push(item);
+      heart.classList.remove('fa-regular');
+      heart.classList.add('fa-solid');
+      heart.style.color = 'red';
+    }
+
+    localStorage.setItem(`favorite_${item.type}_${username}`, JSON.stringify(favorites));
+  }
+
+  // Tartışma Başlat
+  function startDiscussion(event) {
+    event.stopPropagation(); // 👈 stops click from bubbling to the whole card
+
+    const currentPage = window.location.pathname;
+
+    let category = "";
+    if (currentPage.includes("games")) category = "games";
+    else if (currentPage.includes("books")) category = "books";
+    else if (currentPage.includes("movies")) category = "movies";
+    else if (currentPage.includes("series")) category = "series";
+    else category = "general";
+
+    window.location.href = `../discussions/discussions.html?category=${category}`;
+  }
+
+</script>
+
+</body>
+</html>

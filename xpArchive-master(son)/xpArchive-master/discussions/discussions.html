@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discussions</title>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      padding: 30px;
+    }
+  
+    h1, h2, h3 {
+      color: #333;
+    }
+  
+    .discussion {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin-bottom: 15px;
+    }
+  
+    .discussion-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 4px;
+      color: #222;
+    }
+  
+    .discussion-author {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 10px;
+    }
+  
+    .join-button {
+      padding: 8px 14px;
+      font-size: 14px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  
+    .join-button:hover {
+      background-color: #0056b3;
+    }
+  
+    #discussion-title {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+  
+    #create-btn {
+      margin-top: 10px;
+      padding: 8px 16px;
+      background-color: #28a745;
+      border: none;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  
+    #create-btn:hover {
+      background-color: #1e7e34;
+    }
+  </style>
+  
+</head>
+<body>
+
+<h1>Discussions</h1>
+<h3 id="category-display"></h3>
+
+<div id="discussions-list"></div>
+
+<h2>Create New Discussion</h2>
+<input type="text" id="discussion-title" placeholder="Discussion Title">
+<button id="create-btn">Create</button>
+
+<script>
+// ✅ Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyAS06nY6907ZKrP3ZQ5bG1GEGJ6IOe-i84",
+  authDomain: "xparchive-c0cba.firebaseapp.com",
+  projectId: "xparchive-c0cba",
+  storageBucket: "xparchive-c0cba.firebasestorage.app",
+  messagingSenderId: "160205927114",
+  appId: "1:160205927114:web:fc7956bf6814480f953a33"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// ✅ Firestore Ready
+firebase.firestore().enableNetwork().then(() => {
+  console.log("Firestore Network Enabled");
+  startApp();
+});
+
+function startApp() {
+  // ✅ Get category from URL
+  const category = new URLSearchParams(window.location.search).get("category");
+  if (!category) {
+    alert("No category specified. Please go back and select from the main page.");
+    return;
+  }
+
+  document.getElementById("category-display").innerText = `Category: ${category}`;
+
+  // ✅ Load discussions from Firestore
+  function loadDiscussions() {
+    db.collection("discussions")
+      .where("category", "==", category)
+      .orderBy("timestamp", "desc")
+      .onSnapshot(snapshot => {
+        const list = document.getElementById("discussions-list");
+        list.innerHTML = "";
+
+        if (snapshot.empty) {
+          list.innerHTML = "<p>No discussions yet. Be the first to post!</p>";
+          return;
+        }
+
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const div = document.createElement("div");
+          div.className = "discussion";
+          div.innerHTML = `
+  <div class="discussion-title">${data.title}</div>
+  <div class="discussion-author">by ${data.createdBy}</div>
+  <button class="join-button" onclick="goToDiscussion('${doc.id}')">Join Discussion</button>
+`;
+          list.appendChild(div);
+        });
+      }, err => {
+        console.error("Snapshot error:", err.message);
+        alert("You might need to create a Firestore index (check Firebase console).");
+      });
+  }
+
+  // ✅ Create a new discussion and redirect
+  function createDiscussion() {
+    const title = document.getElementById("discussion-title").value.trim();
+    if (!title) return alert("Please enter a title.");
+
+    const user = JSON.parse(localStorage.getItem("xpUser"))?.username || "guest";
+
+    db.collection("discussions").add({
+      title,
+      category,
+      createdBy: user,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).then((docRef) => {
+      // 🔁 redirect to the new discussion
+      window.location.href = `discussion-detail.html?discussionId=${docRef.id}`;
+    }).catch(err => {
+      console.error("Error saving discussion:", err);
+      alert("Error saving discussion.");
+    });
+  }
+
+  // ✅ Event listeners
+  document.getElementById("create-btn").addEventListener("click", createDiscussion);
+
+  // ✅ Go to detail page
+  window.goToDiscussion = function(id) {
+    window.location.href = `discussion-detail.html?discussionId=${id}`;
+  };
+
+  // ✅ Load all discussions
+  loadDiscussions();
+}
+</script>
+
+</body>
+</html>
