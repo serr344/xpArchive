@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>xpArchive | Forum</title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #e8ebee;
+        color: #333;
+      }
+
+      .navbar {
+        background-color: #1e1e1e;
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #fff;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      }
+
+      .logo {
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+      }
+
+      .nav-links a {
+        margin: 0 1rem;
+        color: #fff;
+        text-decoration: none;
+        font-weight: bold;
+      }
+
+      .community-dropdown {
+        position: relative;
+      }
+
+      .community-dropdown .dropdown-content {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background-color: #333;
+        width: 200px;
+        padding-top: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        z-index: 10;
+      }
+
+      .community-dropdown:hover .dropdown-content {
+        display: block;
+      }
+
+      .dropdown-content a {
+        display: block;
+        padding: 10px 15px;
+        color: white;
+        text-decoration: none;
+      }
+
+      .dropdown-content a:hover {
+        background-color: #4caf50;
+        text-decoration: underline;
+        cursor: pointer;
+      }
+
+      .forum-main {
+        padding: 30px;
+      }
+
+      .forum-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+      }
+
+      .forum-header h1 {
+        font-size: 32px;
+      }
+
+      .button-green {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s;
+      }
+
+      .button-green:hover {
+        background-color: #45a049;
+      }
+
+      .topic-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-top: 30px;
+      }
+
+      .topic-card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+        text-align: center;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .topic-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      .topic-card h2 {
+        margin-top: 0;
+        color: #333;
+      }
+
+      .topic-card p {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 15px;
+      }
+
+      .discussion-card {
+        background: #fff;
+        border-radius: 10px;
+        padding: 15px 20px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        transition: box-shadow 0.2s;
+        cursor: pointer;
+      }
+
+      .discussion-card:hover {
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+      }
+
+      .discussion-card-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: #222;
+      }
+
+      .discussion-card-meta {
+        color: gray;
+        font-size: 13px;
+        font-style: italic;
+      }
+
+      .discussions-header {
+        margin-top: 60px;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #4caf50;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .discussions-header h2 {
+        font-size: 26px;
+        font-weight: bold;
+        color: #333;
+      }
+
+      .discussions-header i {
+        font-size: 24px;
+        color: #4caf50;
+      }
+    </style>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  </head>
+
+  <body>
+    <!-- ✅ NAVBAR -->
+    <div id="navbar-container"></div>
+
+    <!-- ✅ FORUM MAIN CONTENT -->
+    <main class="forum-main">
+      <section class="forum-header">
+        <h1>Forum Topics</h1>
+        <div id="search-box-container"></div>
+        <button class="button-green">Create a New Topic</button>
+      </section>
+
+      <section class="forum-topics">
+        <div style="margin-bottom: 40px; font-size: 17px; color: #444">
+          <p>
+            Welcome to <strong>xpArchive</strong> — a growing community where
+            you can share, explore, and discuss the games you play, books you
+            read, and shows you watch. Dive in and join the conversation!
+          </p>
+        </div>
+
+        <div class="topic-section">
+          <div class="topic-card">
+            <h2>🕹️ Games</h2>
+            <p>Explore and join game-related discussions.</p>
+            <button class="button-green" onclick="goToCategory('games')">
+              View Topic
+            </button>
+          </div>
+
+          <div class="topic-card">
+            <h2>📚 Books</h2>
+            <p>Talk about your favorite books and authors.</p>
+            <button class="button-green" onclick="goToCategory('books')">
+              View Topic
+            </button>
+          </div>
+
+          <div class="topic-card">
+            <h2>🎬 Movies</h2>
+            <p>Discuss the latest and greatest in film.</p>
+            <button class="button-green" onclick="goToCategory('movies')">
+              View Topic
+            </button>
+          </div>
+
+          <div class="topic-card">
+            <h2>📺 Series</h2>
+            <p>Chat about TV shows and streaming series.</p>
+            <button class="button-green" onclick="goToCategory('series')">
+              View Topic
+            </button>
+          </div>
+        </div>
+
+        <!-- ✅ ŞIK BAŞLIK + LİSTE -->
+        <div class="discussions-header">
+          <i class="fas fa-fire"></i>
+          <h2>Ongoing Discussions</h2>
+        </div>
+        <div id="top-discussions"></div>
+      </section>
+    </main>
+
+    <!-- ✅ NAVBAR FETCH + LOGIN CHECK -->
+    <script>
+      fetch("/xpArchive-master/navbar/navbar.html")
+        .then((res) => res.text())
+        .then((html) => {
+          document.getElementById("navbar-container").innerHTML = html;
+
+          const signupLink = document.getElementById("signup-link");
+          const loginLink = document.getElementById("login-link");
+          const logoutLink = document.getElementById("logout-link");
+          const toggle = document.getElementById("community-toggle");
+          const menu = document.getElementById("community-menu");
+
+          toggle?.addEventListener("click", (e) => {
+            e.preventDefault();
+            menu.style.display =
+              menu.style.display === "block" ? "none" : "block";
+          });
+
+          document.addEventListener("click", (e) => {
+            if (!toggle.contains(e.target) && !menu.contains(e.target)) {
+              menu.style.display = "none";
+            }
+          });
+
+          try {
+            const user = JSON.parse(localStorage.getItem("xpUser"));
+            if (user && typeof user === "object") {
+              signupLink.style.display = "none";
+              loginLink.style.display = "none";
+              logoutLink.style.display = "inline";
+            } else {
+              signupLink.style.display = "inline";
+              loginLink.style.display = "inline";
+              logoutLink.style.display = "none";
+            }
+
+            logoutLink.addEventListener("click", (e) => {
+              e.preventDefault();
+              localStorage.removeItem("xpUser");
+              window.location.reload();
+            });
+          } catch (err) {
+            console.error("xpUser kontrolü hatası:", err);
+          }
+        });
+
+      function goToCategory(category) {
+        window.location.href = `discussions/discussions.html?category=${category}`;
+      }
+    </script>
+
+    <!-- ✅ FIREBASE DISCUSSIONS -->
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyAS06nY6907ZKrP3ZQ5bG1GEGJ6IOe-i84",
+        authDomain: "xparchive-c0cba.firebaseapp.com",
+        projectId: "xparchive-c0cba",
+        storageBucket: "xparchive-c0cba.appspot.com",
+        messagingSenderId: "160205927114",
+        appId: "1:160205927114:web:fc7956bf6814480f953a33",
+      };
+
+      firebase.initializeApp(firebaseConfig);
+
+      document.addEventListener("DOMContentLoaded", function () {
+        firebase
+          .firestore()
+          .collection("discussions")
+          .orderBy("timestamp", "desc")
+          .limit(4)
+          .get()
+          .then((snapshot) => {
+            const list = document.getElementById("top-discussions");
+            if (snapshot.empty) {
+              list.innerHTML =
+                "<div class='discussion-card'>No recent discussions yet.</div>";
+              return;
+            }
+
+            snapshot.forEach((doc) => {
+              const data = doc.data();
+              const div = document.createElement("div");
+              div.className = "discussion-card";
+              div.innerHTML = `
+              <div class="discussion-card-title">${data.title}</div>
+              <div class="discussion-card-meta">Category: ${
+                data.category
+              } • by ${data.createdBy || "guest"}</div>
+            `;
+              div.onclick = () => {
+                window.location.href = `discussions/discussion-detail.html?discussionId=${doc.id}`;
+              };
+              list.appendChild(div);
+            });
+          })
+          .catch((error) => {
+            console.error("🔥 Error loading discussions:", error);
+          });
+      });
+    </script>
+  </body>
+</html>

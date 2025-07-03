@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account</title>
+  <link href="create.css" rel="stylesheet">
+  <script type="module" src="register.js" defer></script>
+</head>
+<body>
+
+  <form id="register-form"> 
+    <h3>Create Account</h3>
+
+    <label for="username">Username
+      <input type="text" id="username" placeholder="Username" required>
+    </label>
+
+    <label for="fullname">Full Name
+      <input type="text" id="fullname" placeholder="Full Name" required>
+    </label>
+
+    <label for="birthyear">Birth Year
+      <input type="number" id="birthyear" placeholder="e.g. 1995" required>
+    </label>
+
+    <fieldset>
+      <legend>Select Your Interests</legend>
+      <label><input type="checkbox" name="interests" value="Books"> Books</label><br>
+      <label><input type="checkbox" name="interests" value="Games"> Games</label><br>
+      <label><input type="checkbox" name="interests" value="Movies"> Movies</label><br>
+      <label><input type="checkbox" name="interests" value="Series"> Series</label>
+    </fieldset>
+
+    <label for="email">Email address
+      <input type="email" id="email" placeholder="Email address" required>
+    </label>
+
+    <label for="password">Password
+      <input type="password" id="password" placeholder="Password" required>
+    </label>
+
+    <button type="submit" id="submit">Create Account</button>
+
+    <div class="form">
+      <p>Already have an account? <a href="login.html">Login</a></p>
+    </div>
+  </form>
+
+</body>
+</html>

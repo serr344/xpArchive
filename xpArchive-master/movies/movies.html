@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>All Movies</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="select-movie.css" />
+  <link rel="stylesheet" href="../search-bar/searchbar.css" />
+</head>
+<body>
+
+<!-- ✅ Navbar -->
+<div id="navbar-container"></div>
+
+<!-- ✅ Search Bar -->
+<div class="search-box">
+  <input type="text" id="search-input" placeholder="Search..." />
+  <button type="submit" id="search-btn">Search</button>
+</div>
+
+<!-- ✅ Search Suggestions -->
+<div id="search-results" class="search-results-list"></div>
+
+<!-- ✅ Page Header -->
+<div class="page-header">
+  <h1>All Movies</h1>
+  <div class="controls">
+    <select id="sort-select">
+      <option value="">Sort by...</option>
+      <option value="az">Title (A-Z)</option>
+      <option value="za">Title (Z-A)</option>
+      <option value="newest">Newest First</option>
+      <option value="oldest">Oldest First</option>
+    </select>
+    <select id="genre-select">
+      <option value="">Filter by Genre</option>
+    </select>
+  </div>
+</div>
+
+<!-- ✅ Movie List -->
+<div class="grid" id="movie-list">Loading movies...</div>
+
+<!-- ✅ Pagination -->
+<div class="pagination">
+  <button onclick="changePage(-1)">Previous</button>
+  <span id="page-info"></span>
+  <button onclick="changePage(1)">Next</button>
+</div>
+
+<!-- ✅ Scripts -->
+<script>
+  // 🔑 Gerekli Sabitler
+  const apiKey = 'f7f860eb9f4587839d83fd21430f4205';
+  const movieListDiv = document.getElementById('movie-list');
+  const genreSelect = document.getElementById('genre-select');
+  const searchInput = document.getElementById('search-input');
+  const searchBtn = document.getElementById('search-btn');
+  const searchResultsDiv = document.getElementById('search-results');
+
+  const user = JSON.parse(localStorage.getItem("xpUser"));
+  const username = user?.username || "guest";
+  const storageKey = `favorite_movies_${username}`;
+
+  let currentMovies = [];
+  let totalPages = 1;
+  let page = 1;
+  const pageSize = 20;
+  let selectedGenreId = null;
+  let genresMap = {};
+  let isSearching = false;
+  let searchQuery = "";
+
+  // Sayfa bilgisi
+  function getPageFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    return parseInt(params.get("page")) || 1;
+  }
+  page = getPageFromUrl();
+
+  // ✅ Favori Kontrol
+  function isFavorite(movieId) {
+    const favorites = JSON.parse(localStorage.getItem(storageKey)) || [];
+    return favorites.some(f => f.id === movieId);
+  }
+
+  // ✅ Favori Ekle/Kaldır
+  function toggleFavorite(event, movie) {
+    event.stopPropagation();
+    let favorites = JSON.parse(localStorage.getItem(storageKey)) || [];
+    const heart = event.target;
+
+    const exists = favorites.some(f => f.id === movie.id);
+    if (exists) {
+      favorites = favorites.filter(f => f.id !== movie.id);
+      heart.classList.remove('fa-solid');
+      heart.classList.add('fa-regular');
+      heart.style.color = '';
+    } else {
+      favorites.push({
+        id: movie.id,
+        name: movie.title,
+        image: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : 'placeholder.jpg'
+      });
+      heart.classList.remove('fa-regular');
+      heart.classList.add('fa-solid');
+      heart.style.color = 'red';
+    }
+
+    localStorage.setItem(storageKey, JSON.stringify(favorites));
+  }
+
+  // ✅ Kart Oluşturucu
+  function drawMovieCard(movie) {
+    const card = document.createElement('div');
+    card.className = 'game-card';
+
+    const image = movie.poster_path
+      ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+      : 'placeholder.jpg';
+
+    const title = movie.title || 'No Title';
+    const isFav = isFavorite(movie.id);
+    const heartClass = isFav ? 'fa-solid' : 'fa-regular';
+    const heartColor = isFav ? 'red' : '';
+
+    card.innerHTML = `
+      <div class="card-icons">
+        <i class="${heartClass} fa-heart" style="color: ${heartColor};" title="Toggle Favorite"></i>
+        <i class="fa-solid fa-pen-to-square" title="Write Discussion" onclick="startDiscussion(event)"></i>
+      </div>
+      <img src="${image}" alt="${title}">
+      <div class="game-title">${title}</div>
+    `;
+
+    card.querySelector('.fa-heart').addEventListener('click', (e) => toggleFavorite(e, movie));
+
+    card.addEventListener('click', () => {
+      const url = `movie-detail.html?movieId=${movie.id}&page=${page}`;
+      window.location.href = url;
+    });
+
+    return card;
+  }
+
+  // ✅ Filmleri Göster
+  function displayMovies() {
+    movieListDiv.innerHTML = '';
+    currentMovies.forEach(movie => movieListDiv.appendChild(drawMovieCard(movie)));
+    document.getElementById("page-info").innerText = `Page ${page} of ${totalPages}`;
+  }
+
+  // ✅ Sayfa Değiştir
+  function changePage(offset) {
+    const newPage = page + offset;
+    if (newPage < 1 || newPage > totalPages) return;
+
+    const url = new URL(window.location);
+    url.searchParams.set('page', newPage);
+    window.history.replaceState({}, '', url);
+
+    page = newPage;
+    if (isSearching) {
+      searchMovies(searchQuery, page);
+    } else {
+      fetchMovies(page);
+    }
+  }
+
+  // ✅ Türleri Çek
+  async function fetchGenres() {
+    const res = await fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${apiKey}&language=en-US`);
+    const data = await res.json();
+    data.genres.forEach(g => {
+      genresMap[g.id] = g.name;
+      const opt = document.createElement("option");
+      opt.value = g.id;
+      opt.textContent = g.name;
+      genreSelect.appendChild(opt);
+    });
+  }
+
+  // ✅ Film Getir
+  async function fetchMovies(pageNum = 1) {
+    if (isSearching) return;
+    movieListDiv.innerHTML = "<p>Loading movies...</p>";
+
+    try {
+      const genreQuery = selectedGenreId ? `&with_genres=${selectedGenreId}` : '';
+      let randomYearQuery = '';
+      if (pageNum === 1 && !selectedGenreId) {
+        const currentYear = new Date().getFullYear();
+        const randomYear = Math.floor(Math.random() * (currentYear - 1980 + 1)) + 1980;
+        randomYearQuery = `&primary_release_year=${randomYear}`;
+      }
+
+      const res = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&sort_by=popularity.desc&language=en-US&page=${pageNum}${genreQuery}${randomYearQuery}`);
+      const data = await res.json();
+      currentMovies = data.results || [];
+      totalPages = Math.min(data.total_pages, 500);
+      page = pageNum;
+      displayMovies();
+    } catch (err) {
+      movieListDiv.innerHTML = "<p>Failed to load movies.</p>";
+    }
+  }
+
+  // ✅ Arama
+  async function searchMovies(query, pageNum = 1) {
+    if (!query) return fetchMovies(1);
+
+    const url = new URL(window.location);
+    url.searchParams.set('search', query);
+    url.searchParams.set('page', pageNum);
+    window.history.replaceState({}, '', url);
+
+    movieListDiv.innerHTML = "<p>Searching...</p>";
+    try {
+      const res = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&language=en-US&query=${encodeURIComponent(query)}&page=${pageNum}`);
+      const data = await res.json();
+      currentMovies = data.results || [];
+      totalPages = data.total_pages || 1;
+      page = pageNum;
+      searchQuery = query;
+      isSearching = true;
+      displayMovies();
+    } catch (err) {
+      movieListDiv.innerHTML = "<p>Search failed.</p>";
+    }
+  }
+
+  // ✅ Canlı Öneri
+  function updateSearchResults(query) {
+    const lowercaseQuery = query.toLowerCase();
+    const matches = currentMovies.filter(movie =>
+      movie.title.toLowerCase().includes(lowercaseQuery)
+    );
+
+    searchResultsDiv.innerHTML = '';
+    if (matches.length === 0 || !query) {
+      searchResultsDiv.style.display = 'none';
+      return;
+    }
+
+    matches.slice(0, 5).forEach(movie => {
+      const div = document.createElement('div');
+      div.className = 'search-result-item';
+      div.textContent = movie.title;
+      div.addEventListener('click', () => {
+        window.location.href = `movie-detail.html?movieId=${movie.id}`;
+      });
+      searchResultsDiv.appendChild(div);
+    });
+
+    searchResultsDiv.style.display = 'block';
+  }
+
+  // ✅ Event Listener'lar
+  document.getElementById("sort-select").addEventListener("change", () => {
+    const val = document.getElementById("sort-select").value;
+    switch(val) {
+      case "az": currentMovies.sort((a, b) => a.title.localeCompare(b.title)); break;
+      case "za": currentMovies.sort((a, b) => b.title.localeCompare(a.title)); break;
+      case "newest": currentMovies.sort((a, b) => new Date(b.release_date) - new Date(a.release_date)); break;
+      case "oldest": currentMovies.sort((a, b) => new Date(a.release_date) - new Date(b.release_date)); break;
+    }
+    displayMovies();
+  });
+
+  genreSelect.addEventListener("change", () => {
+    selectedGenreId = genreSelect.value || null;
+    page = 1;
+    fetchMovies(page);
+  });
+
+  searchInput.addEventListener('input', () => {
+    const val = searchInput.value.trim();
+    if (!val) {
+      isSearching = false;
+      page = 1;
+      const url = new URL(window.location);
+      url.searchParams.delete('search');
+      url.searchParams.set('page', 1);
+      window.history.replaceState({}, '', url);
+      fetchMovies(page);
+      searchResultsDiv.style.display = 'none';
+    } else {
+      updateSearchResults(val);
+    }
+  });
+
+  searchBtn.addEventListener('click', () => searchMovies(searchInput.value.trim()));
+  searchInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') searchMovies(searchInput.value.trim());
+  });
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const query = params.get('search');
+    const pg = parseInt(params.get('page')) || 1;
+
+    if (query) {
+      isSearching = true;
+      searchQuery = query;
+      searchInput.value = query;
+      searchMovies(query, pg);
+    } else {
+      fetchMovies(pg);
+    }
+  });
+
+  fetchGenres();
+  fetchMovies(page);
+
+  function startDiscussion(event) {
+    event.stopPropagation();
+    const currentPage = window.location.pathname;
+    let category = "";
+    if (currentPage.includes("games")) category = "games";
+    else if (currentPage.includes("books")) category = "books";
+    else if (currentPage.includes("movies")) category = "movies";
+    else if (currentPage.includes("series")) category = "series";
+    else category = "general";
+    window.location.href = `../discussions/discussions.html?category=${category}`;
+  }
+</script>
+
+
+<!-- ✅ Navbar script -->
+<script src="/xpArchive-master/navbar/navbar.js"></script>
+<script src="../search-bar/load-search-bar.js"></script>
+</body>
+</html>

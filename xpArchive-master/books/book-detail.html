@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Book Detail</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="book-detail.css" />
+</head>
+<body>
+
+<div id="navbar-container"></div>
+
+<div class="detail-container" id="book-detail">Loading...</div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const bookId = params.get("id");
+  const apiKey = "AIzaSyAgGISUwqx-OGGdBMlGC3FW-Er5LQsO-Y0";
+
+  async function fetchBookDetail() {
+    const detailContainer = document.getElementById("book-detail");
+
+    if (!bookId) {
+      detailContainer.innerHTML = `<p>Book ID is missing.</p>`;
+      return;
+    }
+
+    try {
+      const res = await fetch(`https://www.googleapis.com/books/v1/volumes/${bookId}?key=${apiKey}`);
+      const data = await res.json();
+      const info = data.volumeInfo;
+
+      const title = info.title || "No title";
+      const description = info.description || "No description available.";
+      const authors = info.authors?.join(", ") || "Unknown";
+      const publishedDate = info.publishedDate || "N/A";
+      const categories = info.categories?.join(", ") || "N/A";
+      const thumbnail = info.imageLinks?.thumbnail || 'https://via.placeholder.com/300x450?text=No+Cover';
+
+      detailContainer.innerHTML = `
+        <div class="detail-content">
+          <img src="${thumbnail}" alt="${title}" />
+          <div class="info">
+            <h1>${title}</h1>
+            <p><strong>Authors:</strong> ${authors}</p>
+            <p><strong>Published:</strong> ${publishedDate}</p>
+            <p><strong>Categories:</strong> ${categories}</p>
+            <p><strong>Description:</strong> ${description}</p>
+          </div>
+        </div>
+      `;
+
+    } catch (error) {
+      console.error("Error fetching book detail:", error);
+      detailContainer.innerHTML = `<p>Book data could not be loaded.</p>`;
+    }
+  }
+
+  fetchBookDetail();
+</script>
+
+<script src="/xpArchive-master/navbar/navbar.js"></script>
+</body>
+</html>
